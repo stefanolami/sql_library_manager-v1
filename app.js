@@ -30,16 +30,16 @@ app.use('/users', usersRouter);
 
 /* 404 error handler */
 
-app.use((req, res, next) => {
+/* app.use((req, res, next) => {
   const err = new Error();
   err.message = "Sorry, page not found";
   err.status = 404;
   next(err);
-})
+}) */
 
 /* global error handler */
 
-app.use((err, req, res, next) => {
+/* app.use((err, req, res, next) => {
   if (err.status === 404) {
       console.log(err.message);
       res.render("page-not-found", err);
@@ -53,7 +53,7 @@ app.use((err, req, res, next) => {
       console.log(err.message);
       res.render("error", err)
   }
-})
+}) */
 
 /* // catch 404 and forward to error handler
 app.use(function(req, res, next) {

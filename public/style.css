@@ -98,6 +98,7 @@ input {
   border-radius: 2px;
   border-color: #E7E7E7;
   transition: 0.4s;
+  margin-bottom: 10px; 
 }
 
 input[type=text] {
