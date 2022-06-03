@@ -2,6 +2,9 @@ extends layout
 
 block content
   h1 Books
+  form.search-form(method='post', action='/search')
+    input.search(type='text', name='search')
+    input(type='submit', value='Search')
   a.button(href='/books/new') Create New Book
   table
     tr
@@ -17,3 +20,6 @@ block content
         td= book.author 
         td= book.genre
         td= book.year
+  .pagination-buttons 
+    while n <= pages
+      a.button(href='/books?page=' + (n - 1), id=(page == n - 1 ? 'active' : ''))= n++

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const Book = require('../models').Book;
+const {Op} = require('sequelize');
 
 /* Helper Function */
 function asyncHandler(cb){
@@ -16,13 +17,19 @@ function asyncHandler(cb){
 
 /* GET home page. */
 router.get('/', asyncHandler(async (req, res) => {
-  res.redirect('/books')
+  res.redirect('/books?page=0')
 }));
 
 /* GET books */
 router.get('/books', asyncHandler(async (req, res) => {
-  const books = await Book.findAll();
-  res.render('index', {books: books});
+  let page = req.query.page;
+  const allBooks = await Book.findAll();
+  const pages = Math.ceil(allBooks.length / 5);
+  const books = await Book.findAndCountAll({
+    limit: 5,
+    offset: page * 5
+  });
+  res.render('index', {books: books.rows, n: 1, pages: pages, page: page})
 }))
 
 /* GET new */
@@ -35,7 +42,7 @@ router.post('/', asyncHandler(async (req, res) => {
   let book;
   try {
     book = await Book.create(req.body);
-    res.redirect('/books');
+    res.redirect('/books?page=0');
   } catch(error) {
     if (error.name === 'SequelizeValidationError') {
       book = await Book.build(req.body);
@@ -52,7 +59,7 @@ router.get('/books/:id', asyncHandler(async (req, res) => {
   if (book) {
     res.render('update', {book: book})
   } else {
-    res.sendStatus(404);
+    res.render('page-not-found')
   }
 }))
 
@@ -63,7 +70,7 @@ router.post('/books/:id', asyncHandler(async (req, res) => {
     book = await Book.findByPk(req.params.id);
     if (book) {
       await book.update(req.body);
-      res.redirect('/books');
+      res.redirect('/books?page=0');
     } else {
       res.sendStatus(404)
     }
@@ -82,7 +89,47 @@ router.post('/books/:id', asyncHandler(async (req, res) => {
 router.post('/books/:id/delete', asyncHandler(async (req, res) => {
   const book = await Book.findByPk(req.params.id);
   await book.destroy();
-  res.redirect('/books');
+  res.redirect('/books?page=0');
+}))
+
+/* POST search book */
+router.post('/search', asyncHandler(async (req, res) => {
+  const searchQuery = req.body.search;
+  /* console.log(searchQuery); */
+  res.redirect('/search/' + searchQuery)
+
+}))
+
+/* GET search book */
+router.get('/search/:query', asyncHandler(async (req, res) => {
+  const searchQuery = req.params.query;
+  const books = await Book.findAll({
+    where: {
+      [Op.or]: [
+        {
+          title: {
+            [Op.substring]: searchQuery
+          }
+        },
+        {
+          author: {
+            [Op.substring]: searchQuery
+          }
+        },
+        {
+          genre: {
+            [Op.substring]: searchQuery
+          }
+        },
+        {
+          year: {
+            [Op.substring]: searchQuery
+          }
+        }
+      ]
+    }
+  })
+  res.render('index', {books: books})
 }))
 
 module.exports = router;
