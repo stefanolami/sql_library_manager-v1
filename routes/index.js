@@ -76,7 +76,6 @@ router.post('/books/:id', asyncHandler(async (req, res) => {
       throw error
     }
   }
-  
 }))
 
 /* POST delete book */
