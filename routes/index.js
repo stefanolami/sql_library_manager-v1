@@ -22,14 +22,18 @@ router.get('/', asyncHandler(async (req, res) => {
 
 /* GET books */
 router.get('/books', asyncHandler(async (req, res) => {
-  let page = req.query.page;
+  const page = req.query.page;
   const allBooks = await Book.findAll();
   const pages = Math.ceil(allBooks.length / 5);
   const books = await Book.findAndCountAll({
     limit: 5,
     offset: page * 5
   });
-  res.render('index', {books: books.rows, n: 1, pages: pages, page: page})
+  if (page <= pages - 1) {
+    res.render('index', {books: books.rows, n: 1, pages: pages, page: page})
+  } else {
+    res.render('page-not-found');
+  }
 }))
 
 /* GET new */
@@ -38,7 +42,7 @@ router.get('/books/new', (req, res) => {
 })
 
 /* POST new */
-router.post('/', asyncHandler(async (req, res) => {
+router.post('/books/new', asyncHandler(async (req, res) => {
   let book;
   try {
     book = await Book.create(req.body);
@@ -131,5 +135,6 @@ router.get('/search/:query', asyncHandler(async (req, res) => {
   })
   res.render('index', {books: books})
 }))
+
 
 module.exports = router;

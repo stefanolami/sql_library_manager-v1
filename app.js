@@ -51,7 +51,7 @@ app.use((err, req, res, next) => {
           err.message = "Oops! An error has occured";
       }
       console.log(err.message);
-      res.render("error", err)
+      res.render("error", {err})
   }
 })
 
